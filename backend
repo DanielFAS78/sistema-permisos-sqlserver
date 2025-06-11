@@ -1,0 +1,59 @@
+import os
+import subprocess
+
+def ejecutar_comando(comando):
+    """Ejecuta un comando en la terminal y muestra su salida."""
+    proceso = subprocess.run(comando, shell=True, capture_output=True, text=True)
+    print(proceso.stdout)
+    if proceso.stderr:
+        print("Error:", proceso.stderr)
+
+def inicializar_proyecto():
+    print(" Creando el entorno de la API con Django Rest Framework...")
+    
+    # Instalar dependencias
+    ejecutar_comando("pip install django djangorestframework pyodbc")
+
+    # Crear el proyecto Django
+    ejecutar_comando("django-admin startproject backend")
+    os.chdir("backend")
+
+    # Crear la aplicación API
+    ejecutar_comando("django-admin startapp api")
+
+    print(" Proyecto y aplicación creados correctamente.")
+
+def configurar_base_datos():
+    print(" Configurando la conexión a SQL Server en settings.py...")
+    
+    config_db = """
+DATABASES = {
+    'default': {
+        'ENGINE': 'sql_server.pyodbc',
+        'NAME': 'nombre_base_datos',
+        'USER': 'usuario_sql',
+        'PASSWORD': 'contraseña_sql',
+        'HOST': 'localhost',
+        'PORT': '1433',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+        },
+    }
+}
+"""
+
+    with open("backend/settings.py", "a") as archivo:
+        archivo.write("\n" + config_db)
+
+    print(" Conexión a SQL Server agregada.")
+
+def ejecutar_migraciones():
+    print(" Aplicando migraciones y ejecutando servidor...")
+    ejecutar_comando("python manage.py migrate")
+    ejecutar_comando("python manage.py runserver")
+
+if __name__ == "__main__":
+    inicializar_proyecto()
+    configurar_base_datos()
+    ejecutar_migraciones()
+    print(" Backend listo para evaluación.")
